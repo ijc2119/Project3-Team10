@@ -229,8 +229,14 @@ def zero_var(data, t):
         return data, features_to_drop
 
 
+with open("google-analytics.html") as f:
+    google_analytics = f.read()
+
 # UI Layout
-app_ui = ui.page_sidebar(
+app_ui = ui.page_fluid(
+    ui.tags.head(ui.tags.meta(charset="utf-8"),ui.HTML(google_analytics)),
+
+    ui.page_sidebar(
     ui.sidebar( #sidebar for uploading data
         # for data selection
         ui.input_radio_buttons("data_source", "Choose Data Source: ", 
@@ -509,12 +515,18 @@ app_ui = ui.page_sidebar(
             )
         ),
     title="Team 10- 5243 Project 2",
-)
+))
 
 # Server Logic
 def server(input, output, session):
     removed_rows = reactive.Value(pd.DataFrame())
     outlier_modifications = reactive.Value(pd.DataFrame())
+
+    # @output()
+    # @render.text
+    # def out():
+    #     search = session.input[".clientdata_url_search"]()
+    #     return urlparse(search)
 
     # Dynamically show the file upload input based on selection
     @render.ui
