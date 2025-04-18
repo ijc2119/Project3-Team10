@@ -14,6 +14,7 @@ from sklearn.decomposition import PCA
 pd.options.mode.chained_assignment = None
 import pyreadr  # type: ignore # For reading RDS files. Had to manually install pyreadr through my anaconda prompt
 import chardet # type: ignore # detect unicode
+import random
 
 
 ## Upload default data
@@ -233,7 +234,8 @@ with open("google-analytics.html") as f:
     google_analytics = f.read()
 
 # UI Layout
-app_ui = ui.page_fluid(
+def layout_a_ui():
+    return ui.page_fluid(
     ui.tags.head(ui.tags.meta(charset="utf-8"),ui.HTML(google_analytics)),
 
     ui.page_sidebar(
@@ -253,7 +255,7 @@ app_ui = ui.page_fluid(
                 ui.markdown(
                 """
                 ### **Load Data**
-                IIn left side panel, choose whether to upload a dataset or use the default data. The default data is from [Kaggle](https://www.kaggle.com/datasets/samikshadalvi/lungs-diseases-dataset) 
+                In left side panel, choose whether to upload a dataset or use the default data. The default data is from [Kaggle](https://www.kaggle.com/datasets/samikshadalvi/lungs-diseases-dataset) 
                  and contains detailed information about patients suffering from various lung conditions and if they have recovered from their lung disease.
                  The uploaded datasets can be in various formats (e.g., CSV, Excel, JSON, and RDS).
                  Afterward, press the Import Data button on the left side panel to load the data. This original data can be seen in a table in the Data Output tab.
@@ -514,8 +516,329 @@ app_ui = ui.page_fluid(
             id="tab"
             )
         ),
-    title="Team 10- 5243 Project 2",
+    title="Team 10- 5243 Project 3",
 ))
+
+
+def layout_b_ui():
+    return ui.page_fluid(ui.tags.head(ui.tags.meta(charset="utf-8"),ui.HTML(google_analytics)),
+                        ui.h2("Team 10 – 5243 Project 3", class_="mt-3 mb-4 text-center"),
+        ui.div(
+            ui.div(
+        ui.navset_hidden(
+        ui.nav_panel("User Guide",
+            ui.div(
+            ui.input_action_button("next_to_upload", "Next Step"),
+            class_="mb-3 text-center"  # adds margin below the button
+        ),
+            ui.markdown(
+                """
+                ### **Load Data**
+                In left side panel, choose whether to upload a dataset or use the default data. The default data is from [Kaggle](https://www.kaggle.com/datasets/samikshadalvi/lungs-diseases-dataset) 
+                 and contains detailed information about patients suffering from various lung conditions and if they have recovered from their lung disease.
+                 The uploaded datasets can be in various formats (e.g., CSV, Excel, JSON, and RDS).
+                 Afterward, press the Import Data button on the left side panel to load the data. This original data can be seen in a table in the Data Output tab.
+                 At any point in the analysis, to reset the data to the original dataset, press the Reset Data button on the left side panel.    
+                """
+                ),
+                ui.markdown("""
+                ### **Data Cleaning & Preprocessing**  
+                The Cleaning & Preprocessing section provides tools to clean, transform, and prepare datasets for further analysis. Users can handle missing values, remove duplicates, detect and treat outliers, normalize numerical features, and encode categorical variables.  
+                #### Data Cleaning  
+                This section allows users to perform basic cleaning operations to ensure data consistency and accuracy:  
+                - Clean Strings & Convert Numbers automatically trims extra spaces, converts text-based numbers into numerical format, and standardizes string formatting.  
+                - Convert to Dates detects and converts date-like strings into proper date-time format.  
+                - Remove Duplicate Rows eliminates exact duplicate rows, ensuring data integrity.  
+                #### Missing Value Handling 
+                 Users can choose from the following strategies to handle missing values  
+                - **Mean, Median, or Mode Imputation** replaces missing values based on statistical measures.  
+                - **Drop Missing Values** allows users to remove rows or specific columns with missing values.  
+                - **Bulk Selection for NA Removal** provides options to select or deselect all columns for missing value treatment.  
+                #### Outlier Handling  
+                This section provides tools to detect and handle outliers  
+                - **Detection Methods**: Users can choose between the Interquartile Range (IQR) method or Z-score to identify outliers.  
+                - **Threshold Adjustment**: A Z-score threshold slider helps fine-tune outlier detection sensitivity.  
+                - **Handling Options**: Users can choose to delete outliers, replace them with mean/median values, or apply Winsorization to cap extreme values.  
+                #### Normalization    
+                - **Enable Normalization** applies standard scaling techniques.  
+                - **Column Selection**: Users can select specific numeric columns or apply normalization across all numeric features.  
+                #### Encoding   
+                - This part allows users to encode categorical columns. A thershold is set to let user choose when should a column should apply lable encoder.  If a columnn's unique value bigger than the threshold, lable encoder will be used. 
+                """),
+                ui.markdown("""
+                ### **Feature Engineering**
+                The Feature Engineering section allows users to create new features and modify existing features, providing visual feedback to display the impact of such transformations.
+                After inputting a feature engineering step, please press the "Update View" button to see the changes reflected in the data table. 
+                #### Target Feature Transformation 
+                Select a column and transformation method (Log Transformation, Box-Cox, Yeo-Johnson) to see the impact of the transformation on the column. 
+                Note that the column must have missing values filled in from the data preprocessing step in order for the Box-Cox and Yeo-Johnson to yield results. 
+                Typically, the Box-Cox method requires that the column values are positive, but this has been considered such that non-positive values are accommodated for. 
+                #### Feature Selection
+                This method allows for dimensionality reduction. There are several feature selection methods:
+                - **PCA** allows the user to select number of PCA components and yields the variance explained by each component. Please ensure the data is properly preprocessed to yield results (e.g. handle missing values, scaling, hot-one encoding, etc.) 
+                - **Filter Zero-Var Variables** allows users to select variance threshold (from 0 to max(var)) for filtering and returns the features dropped at said threshold. Please ensure data is properly processed to yield results (e.g. fill missing values, etc.)
+                - **Manually Remove** allows users to select specific column(s) to manually remove from the table. 
+                #### Create New Features
+                This method allows users to create new features based on pre-existing features in the data. Input name of new feature, new feature formula, and the pre-existing features which are used in the new formula.
+                In the "Input New Formula," please ensure the columns are spelled correctly and the expression is a valid math expression. Also features should not have spaces in their names. 
+                """),
+                ui.markdown("""
+                ### **Exploratory Data Analysis** 
+                The EDA section allows users to explore data through interactive visualizations, summary statistics, and correlation analysis.  
+                Filters can be applied to focus on specific subsets of the dataset, and all outputs update dynamically based on user selections.                
+                #### Apply Filters  
+                Filters help refine the dataset for analysis. For numerical columns, sliders allow selection of value ranges, while categorical columns can be filtered using dropdown menus.  
+                When a filter is adjusted, all visualizations and statistical summaries update automatically.  
+                #### Visualization  
+                Several types of visualizations are available to help interpret the data:  
+                - **Histograms** display the distribution of a single numerical variable.  
+                - **Scatter plots** show relationships between two numerical variables.  
+                - **Box plots** highlight the spread of data and detect potential outliers.  
+                - **Correlation heatmaps** provide an overview of relationships between numerical features.  
+                #### Statistical Insights  
+                Summary statistics, including mean, median, minimum, maximum, and standard deviation, offer a quick overview of the dataset.  
+                A correlation table helps identify potential relationships between numerical variables, which can be useful for deeper analysis.  
+                """),   
+                # ui.input_action_button("next_to_upload", "Next Step"),
+                value="User Guide"
+            ),
+            
+        ui.nav_panel("Upload Data",
+                    ui.div(
+                        ui.input_action_button("back_to_user_guide", "Previous Step"),
+                        ui.input_action_button("next_to_clean", "Next Step"),
+                        class_="mb-3 text-center" 
+                    ),
+                ui.input_radio_buttons("data_source", "Choose Data Source: ", 
+                        choices=["Upload dataset", "Use Default Data"], selected="Use Default Data"),
+
+                # This will conditionally show the file upload input
+                ui.output_ui("show_upload"),
+                ui.input_action_button("save_initial_data", "Import Data"),
+                ui.output_table("table"),
+                value="Upload Data"
+            ),
+
+        ui.nav_panel("Cleaning & Preprocessing",
+                    ui.div(
+                        ui.input_action_button("back_to_upload", "Previous Step"),
+                        ui.input_action_button("next_to_feature_engineering", "Next Step"),
+                        class_="mb-3 text-center"
+                    ),
+                         # upper part: different operation columns
+                         ui.row(
+                             # basic clean (string clean, number convert, duplication remove)
+                             ui.column(2,
+                                       ui.h4("Data Cleaning"),
+                                       ui.input_checkbox("apply_string_cleaning", "Clean Strings & Convert Numbers",
+                                                         value=False),
+                                       ui.input_checkbox("apply_date_conversion", "Convert to Dates", value=False),
+                                       ui.input_checkbox("remove_duplicates", "Remove Duplicate Rows", value=False)
+                                       ),
+                             # missing value
+                             ui.column(2,
+                                       ui.h4("Missing Value Handling"),
+                                       ui.input_selectize("missing_value_strategy", "Missing Value Strategy:",
+                                                          choices=["mean", "median", "most_frequent", "drop"], selected="mean"),
+                                       ui.input_checkbox("select_all_na", "Select All Columns for NA Removal",
+                                                         value=False),
+                                       ui.input_checkbox("deselect_all_na", "Deselect All Columns for NA Removal",
+                                                         value=False),
+                                       ui.input_selectize("drop_na_columns", "Columns to Drop NA:", choices=[],
+                                                          multiple=True)
+                                       ),
+                             # ouliers
+                             ui.column(2,
+                                       ui.h4("Outlier Handling"),
+                                       ui.input_checkbox("remove_outliers", "Handle Outliers", value=False),
+                                       ui.input_radio_buttons("outlier_method", "Detection Method:",
+                                                              choices=["IQR", "Z-score"], selected="IQR"),
+                                       ui.input_slider("zscore_threshold", "Z-score Threshold", min=2, max=5, value=3,
+                                                       step=0.1),
+                                       ui.input_selectize("outlier_columns", "Columns for Outlier Handling:",
+                                                          choices=[], multiple=True),
+                                       ui.input_checkbox("select_all_outliers", "Select All Numeric Columns",
+                                                         value=False),
+                                       ui.input_checkbox("deselect_all_outliers", "Deselect All Numeric Columns",
+                                                         value=False),
+                                       ui.input_selectize("outlier_handling", "Handling Option:",
+                                                          choices=["delete", "mean", "median", "winsorize"],
+                                                          selected="delete")
+                                       ),
+                             # normalize
+                             ui.column(2,
+                                       ui.h4("Normalization"),
+                                       ui.input_checkbox("enable_normalization", "Enable Normalization", value=False),
+                                       ui.input_checkbox("select_all_normalize", "Select All Numeric Columns",
+                                                         value=False),
+                                       ui.input_checkbox("deselect_all_normalize", "Deselect All Numeric Columns",
+                                                         value=False),
+                                       ui.input_selectize("normalize_columns", "Columns to Normalize:", choices=[],
+                                                          multiple=True)
+                                       ),
+                            # encode
+                            ui.column(2,
+                                ui.h4("Encoding"),
+                                ui.input_checkbox("perform_encoding", "Perform Encoding", value=False),
+                                ui.input_slider("one_hot_threshold", "One-Hot Encoding Threshold", min=2, max=50, value=10)
+                            ),
+                            # Save Button (new column on the far right)
+                            ui.column(2,
+                                ui.h4("Save Change"),
+                                ui.input_action_button("save_clean_data", "Save Changes")
+                                     )
+                        ),
+                        # lower part: left for data preview, right for modifications review
+                        ui.row(
+                            ui.column(12,
+                                ui.h4("Data Set Preview"),
+                                ui.output_table("preview_table")
+                            ),
+                        ),
+                        value="Cleaning & Preprocessing"
+            ),
+
+        ui.nav_panel("Feature Engineering",
+                    ui.div(
+                        ui.input_action_button("back_to_clean", "Previous Step"),
+                        ui.input_action_button("next_to_explore", "Next Step"),
+                        class_="mb-3 text-center"
+                    ),
+                        ui.row(
+                            ui.column(4,
+                         ui.input_radio_buttons(
+                             "method",
+                             "Choose a method:",
+                             {
+                                 "trans": "Target Feature Transformation",
+                                 "select": "Feature Selection",
+                                 "new": "Create New Features"}, selected = None
+                            )
+                        ),
+                             ui.column(3,
+                                ui.row(
+                                 ui.input_action_button("update_fe_data", "Update View/ Save Changes"),
+                                    )
+                                ),
+
+                            ),
+                        # Target Feature Transformation
+                        ui.row(
+                        ui.panel_conditional(
+                            "input.method.includes('trans')",
+
+                            # drop down menu for which feature transformation method
+                            ui.column(4,
+                            ui.input_select(
+                                "target_trans",
+                                "Select Transformation Method:",
+                                {"log": "Log Transformation", "bc": "Box-Cox Transformation",
+                                 "yj": "Yeo-Johnson Transformation"}, selected=None)),
+
+                            ui.column(4,
+                                ui.input_select("target_feat", "Choose Target Feature:",choices=[], selected=None)),
+
+
+                                ui.output_plot("target_fe_plot")
+                        )),
+                        ui.row(
+                        # Feature Selection Methods
+                        ui.column(4,
+                            ui.panel_conditional(
+                                    "input.method.includes('select')",
+                            # drop down menu for which feature selection method
+                            ui.input_select(
+                                "feat_select",
+                                "Select Feature Selection Method:",
+                                {"pca": "PCA", "zero": "Filter Zero-Var Features", "rem":"Manually Remove"}, selected=None))),
+
+                            # if pca chosen
+                            ui.panel_conditional("input.method.includes('select') && input.feat_select === 'pca'",
+                        ui.column(4,
+                            ui.input_slider("num_components", "# of PCA Components:", min=1, max=10, value=1)),
+                            # text containing info about feature selection (e.g. feat dropped)
+                            ui.output_text("pca_label"),
+                            ),
+
+                            # if zero variance features filter chosen
+                            ui.panel_conditional(
+                            "input.method.includes('select') && input.feat_select === 'zero'",
+                                ui.column(4,
+                            ui.input_slider("var", "Variance Threshold:", min=0, max=10, value=0.1, step=0.1)),
+
+                            # text containing info about feature selection (e.g. feat dropped)
+                            ui.output_text("fd_label")
+                            ),
+
+                            # if manual removal chosen
+                            ui.column(4,
+                            ui.panel_conditional(
+                            "input.method.includes('select') && input.feat_select === 'rem'",
+                            ui.input_selectize("rem_feat", "Select Features to Remove:",choices=[], multiple=True),
+                            )),
+                        ),
+                        ui.panel_conditional(
+                                "input.method.includes('new')",
+                            # drop down menu for which feature transformation method
+                            ui.row(
+                            ui.column(4,
+                                      ui.input_text(
+                                          "new_name",
+                                          "Input New Feature Name",
+                                      )),
+                            ui.column(4,
+                                      ui.input_text(
+                                          "new_feat",
+                                          "Input New Feature Formula (e.g. selected_column * 2)",
+                                      )),
+                            ui.column(4,
+                                ui.input_selectize("feats", "Select Features in Formula:",choices=[], multiple=True))),
+
+                            ui.row(
+                            ui.output_text("new_feat_info"))
+                        ),
+                        ui.output_table("fe_modified_table"),
+                        value="Feature Engineering",
+            ),
+        ui.nav_panel("EDA",
+                    ui.div(
+                        ui.input_action_button("back_to_feature_engineering", "Previous Step"),
+                        class_="mb-3 text-center"
+                    ),                     
+                ui.row(
+                    ui.column(4,
+                        ui.input_select("plot_type", "Select Plot Type",
+                                        choices=["Histogram", "Scatter Plot", "Box Plot", "Correlation Heatmap"], multiple=False),
+                        ui.input_select("x_var", "Choose X-axis Variable (for all plots)", choices=[], multiple=False),
+                        ui.input_select("y_var", "Choose Y-axis Variable (for scatterplot only)", choices=[], multiple=False),
+                    ),
+                    ui.column(4,
+                        ui.output_ui("dynamic_filters_num"),
+                    ),
+                    ui.column(4,
+                        ui.output_ui("dynamic_filters_cate"),
+                    )
+                ),
+                ui.output_image("dynamic_plot", height="600px"),
+                ui.h4("Dataset Summary"),
+                ui.output_table("summary_stats"),
+                ui.h4("Correlation Analysis"),
+                ui.output_table("correlation_table"),
+                value="EDA"
+        ),
+        id="hidden_tabs",
+            ),
+            class_="card p-4 shadow-sm"
+        ),
+        class_="container" 
+    )
+
+)
+
+def choose_layout():
+    assigned = random.choice(["A", "B"])
+    return layout_a_ui() if assigned == "A" else layout_b_ui()
+
 
 # Server Logic
 def server(input, output, session):
@@ -740,7 +1063,6 @@ def server(input, output, session):
         else:
             preview = df
         return preview
-
 
 
     @output
@@ -1079,5 +1401,53 @@ def server(input, output, session):
         plt.savefig(file_path)
         return {"src": file_path, "width": "800px"}
 
+    # Back Functions
+    @reactive.effect
+    @reactive.event(input.back_to_user_guide)
+    def _():
+        ui.update_navs("hidden_tabs", selected="User Guide")
+
+    @reactive.effect
+    @reactive.event(input.back_to_upload)
+    def _():
+        ui.update_navs("hidden_tabs", selected="Upload Data")
+        
+    @reactive.effect
+    @reactive.event(input.back_to_clean)
+    def _():
+        ui.update_navs("hidden_tabs", selected="Cleaning & Preprocessing")
+
+    @reactive.effect
+    @reactive.event(input.back_to_feature_engineering)
+    def _():
+        ui.update_navs("hidden_tabs", selected="Feature Engineering")
+
+    @reactive.effect
+    @reactive.event(input.back_to_explore)
+    def _():
+        ui.update_navs("hidden_tabs", selected="EDA")
+
+    # Next Functions
+    @reactive.effect
+    @reactive.event(input.next_to_upload)
+    def _():
+        ui.update_navs("hidden_tabs", selected="Upload Data")
+        
+    @reactive.effect
+    @reactive.event(input.next_to_clean)
+    def _():
+        ui.update_navs("hidden_tabs", selected="Cleaning & Preprocessing")
+
+    @reactive.effect
+    @reactive.event(input.next_to_feature_engineering)
+    def _():
+        ui.update_navs("hidden_tabs", selected="Feature Engineering")
+
+    @reactive.effect
+    @reactive.event(input.next_to_explore)
+    def _():
+        ui.update_navs("hidden_tabs", selected="EDA")
+
+    
 # Run the Shiny App
-app = App(app_ui, server)
+app = App(ui=choose_layout(), server=server)
