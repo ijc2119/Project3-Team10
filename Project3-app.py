@@ -236,7 +236,15 @@ def layout_a_ui():
         google_analytics = f.read()
     return ui.page_fluid(
     ui.tags.head(ui.tags.meta(charset="utf-8"),ui.HTML(google_analytics)),
-
+    ui.tags.script("""
+        Shiny.addCustomMessageHandler("sendRatingEvent", function(data) {
+            gtag('event', 'submit_feedback', {
+                'event_category': 'ui_feedback',
+                'event_label': data.ui_version,
+                'value': data.rating
+            });
+        });
+    """)
     ui.page_sidebar(
     ui.sidebar( #sidebar for uploading data
         # for data selection
@@ -246,6 +254,13 @@ def layout_a_ui():
         # This will conditionally show the file upload input
         ui.output_ui("show_upload"),
         ui.input_action_button("save_initial_data", "Import Data", class_="btn-success"),
+        # rating the ui
+        ui.hr(),
+        ui.h5("Rate this UI design:"),
+        ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
+        ui.action_button("submit_rating", "Submit Rating"),
+        ui.output_text("Thank you for your rating"),
+
         title="Load Data",
     ),
     ui.page_fillable( #page for the tabs
@@ -522,8 +537,22 @@ def layout_a_ui():
 def layout_b_ui():
     with open("google-analytics.html") as f:
         google_analytics = f.read()
-    return ui.page_fluid(ui.tags.head(ui.tags.meta(charset="utf-8"),ui.HTML(google_analytics)),
-                        ui.h2("Team 10 – 5243 Project 3", class_="mt-3 mb-4 text-center"),
+
+    return ui.page_fluid(
+        ui.tags.head(
+            ui.tags.meta(charset="utf-8"),
+            ui.HTML(google_analytics),
+            ui.tags.script("""
+                Shiny.addCustomMessageHandler("sendRatingEvent", function(data) {
+                    gtag('event', 'submit_feedback', {
+                        'event_category': 'ui_feedback',
+                        'event_label': data.ui_version,
+                        'value': data.rating
+                    });
+                });
+            """)
+        ),
+        ui.h2("Team 10 – 5243 Project 3", class_="mt-3 mb-4 text-center"),
         ui.div(
             ui.div(
         ui.navset_hidden(
@@ -829,17 +858,31 @@ def layout_b_ui():
         ),
         id="hidden_tabs",
             ),
-            class_="card p-4 shadow-sm"
+            class_="col-md-9"
         ),
+            ui.div( 
+                ui.panel_well(
+                    ui.h5("Rate this UI design:"),
+                    ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
+                    ui.input_action_button("submit_rating", "Submit Rating", class_="btn-primary mt-2"),
+                    ui.output_text("Thank you for your rating"),
+                ),
+                class_="col-md-3"
+            ),
+            class_="row card p-4 shadow-sm justify-content-center"  
+        ),        
         class_="container" 
     )
 
-)
+
 
 def choose_layout(request):
+
     assigned = request.cookies.get("ui_version") # read users' cookie to assgin ui for different users
+    #assign ui randomly
     if assigned not in ["A", "B"]:
         assigned = random.choice(["A", "B"])
+        # creat htlm file 
     with open("google-analytics.html", "w") as f:
         f.write(f"""
         <!-- Google tag (gtag.js) -->
@@ -1466,6 +1509,13 @@ def server(input, output, session):
     def _():
         ui.update_navs("hidden_tabs", selected="EDA")
 
+    @reactive.effect
+    @reactive.event(input.submit_rating)
+    def send_rating_to_ga():
+        session.send_custom_message("sendRatingEvent", {
+            "ui_version": session.cookies.get("ui_version", "unknown"),
+            "rating": input.rating()
+        })
     
 # Run the Shiny App
 # use a creat fuction to creat a new app evertime user click the link
