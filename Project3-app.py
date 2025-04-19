@@ -249,7 +249,8 @@ def layout_a_ui(assigned):
             });
         """)
     ),
-      ui.tags.div(
+
+    ui.tags.div(
         ui.input_text("ui_version", "", value=assigned),
         style="display: none;"
       ),
@@ -260,15 +261,15 @@ def layout_a_ui(assigned):
                    choices=["Upload dataset", "Use Default Data"], selected="Use Default Data"),
 
         # This will conditionally show the file upload input
-        ui.output_ui("show_upload"),
-        ui.input_action_button("save_initial_data", "Import Data", class_="btn-success"),
-        # rating the ui
-        ui.hr(),
-        ui.h5("Rate this UI design:"),
-        ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
-        ui.input_action_button("submit_rating", "Submit Rating"),
-        ui.output_text("feedback_message"),
-        title="Load Data",
+        ui.tags.iframe(
+            id="googleform",
+            src="https://docs.google.com/forms/d/e/1FAIpQLSc3V68mGWrpeFwxps39aZDOGTNvNY9T86lzXPd-PRIH9PSQSw/viewform?embedded=true",
+            width="200",
+            height="10000",
+            frameborder="0",
+            marginheight="0",
+            marginwidth="0"
+        ),
     ),
     ui.page_fillable( #page for the tabs
         ui.navset_card_tab(
@@ -558,7 +559,8 @@ def layout_b_ui(assigned):
                         'value': data.rating
                     });
                 });
-            """)
+            """),
+
         ),
       ui.tags.div(
         ui.input_text("ui_version", "", value=assigned),
@@ -873,15 +875,26 @@ def layout_b_ui(assigned):
             ),
                     class_="col-md-9 card p-4 shadow-sm"
                 ),
-                ui.div(  # rating panel
-                    ui.panel_well(
-                        ui.h5("Rate this UI design:"),
-                        ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
-                        ui.input_action_button("submit_rating", "Submit Rating", class_="btn-primary mt-2"),
-                        ui.output_text("feedback_message"),
-                    ),
-                    class_="col-md-3 mt-4"
+
+                ui.tags.iframe(
+                    id="googleform",
+                    src="https://docs.google.com/forms/d/e/1FAIpQLScajEYuogMUu7Df_TVJS0CLbUyjVZziZMMouj8wx8JlYB335w/viewform?embedded=true",
+                    width="100",
+                    height="500",
+                    frameborder="0",
+                    marginheight="0",
+                    marginwidth="0"
                 ),
+
+                # ui.div(  # rating panel
+                #     ui.panel_well(
+                #         ui.h5("Rate this UI design:"),
+                #         ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
+                #         ui.input_action_button("submit_rating", "Submit Rating", class_="btn-primary mt-2"),
+                #         ui.output_text("feedback_message"),
+                #     ),
+                #     class_="col-md-3 mt-4"
+                # ),
                 class_="row gx-4" 
             ),
             class_="container"
