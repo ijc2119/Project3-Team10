@@ -230,11 +230,10 @@ def zero_var(data, t):
         return data, features_to_drop
 
 
-with open("google-analytics.html") as f:
-    google_analytics = f.read()
-
 # UI Layout
 def layout_a_ui():
+    with open("google-analytics.html") as f:
+        google_analytics = f.read()
     return ui.page_fluid(
     ui.tags.head(ui.tags.meta(charset="utf-8"),ui.HTML(google_analytics)),
 
@@ -521,6 +520,8 @@ def layout_a_ui():
 
 
 def layout_b_ui():
+    with open("google-analytics.html") as f:
+        google_analytics = f.read()
     return ui.page_fluid(ui.tags.head(ui.tags.meta(charset="utf-8"),ui.HTML(google_analytics)),
                         ui.h2("Team 10 – 5243 Project 3", class_="mt-3 mb-4 text-center"),
         ui.div(
@@ -837,6 +838,19 @@ def layout_b_ui():
 
 def choose_layout():
     assigned = random.choice(["A", "B"])
+    with open("google-analytics.html", "w") as f:
+        f.write(f"""
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-5SBKSX8JEK"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){{dataLayer.push(arguments);}}
+          gtag('js', new Date());
+          gtag('config', 'G-5SBKSX8JEK', {{
+            'page_path': '/ui_{assigned.lower()}'
+          }});
+        </script>
+        """)
     return layout_a_ui() if assigned == "A" else layout_b_ui()
 
 
@@ -1450,4 +1464,8 @@ def server(input, output, session):
 
     
 # Run the Shiny App
-app = App(ui=choose_layout(), server=server)
+# use a creat fuction to creat a new app evertime user click the link
+def create_app():
+    return App(ui=choose_layout(), server=server)
+
+app = create_app()
