@@ -1471,19 +1471,16 @@ def server(input, output, session):
 # use a creat fuction to creat a new app evertime user click the link
 def create_app():
     async def app_scope(scope, receive, send):
+        if scope["type"] != "http":
+            shiny_app = App(ui=layout_a_ui(), server=server)
+            return await shiny_app(scope, receive, send)
         from fastapi import Request
-
         req = Request(scope, receive=receive)
         assigned = choose_layout(req)
-
         ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
         shiny_app = App(ui=ui_layout, server=server)
-
-        res = await shiny_app(scope, receive, send)
-        return res
+        return await shiny_app(scope, receive, send)
 
     return app_scope
-
-app = create_app()
 
 app = create_app()
