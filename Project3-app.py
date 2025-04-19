@@ -264,7 +264,7 @@ def layout_a_ui(assigned):
         ui.tags.iframe(
             id="googleform",
             src="https://docs.google.com/forms/d/e/1FAIpQLSc3V68mGWrpeFwxps39aZDOGTNvNY9T86lzXPd-PRIH9PSQSw/viewform?embedded=true",
-            width="200",
+            width="100%",
             height="10000",
             frameborder="0",
             marginheight="0",
@@ -873,21 +873,23 @@ def layout_b_ui(assigned):
         ),
         id="hidden_tabs",
             ),
-                    class_="col-md-9 card p-4 shadow-sm"
+                    class_="col-md-8 card p-4 shadow-sm"
                 ),
 
-                ui.div( #rating panel
+                ui.div(  # rating panel
                     ui.panel_well(
-                    ui.tags.iframe(
-                    id="googleform",
-                    src="https://docs.google.com/forms/d/e/1FAIpQLScajEYuogMUu7Df_TVJS0CLbUyjVZziZMMouj8wx8JlYB335w/viewform?embedded=true",
-                    width="200",
-                    height="500",
-                    frameborder="0",
-                    marginheight="0",
-                    marginwidth="0"),
-                    class_="col-md-3 mt-4"
-                )),
+                        ui.tags.iframe(
+                            id="googleform",
+                            src="https://docs.google.com/forms/d/e/1FAIpQLScajEYuogMUu7Df_TVJS0CLbUyjVZziZMMouj8wx8JlYB335w/viewform?embedded=true",
+                            width="100%",
+                            height="1000",
+                            frameborder="0",
+                            marginheight="0",
+                            marginwidth="0"
+                        )
+                    ),
+                    class_="col-md-4 mt-4"
+                ),
 
                 # ui.div(  # rating panel
                 #     ui.panel_well(
