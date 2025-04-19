@@ -911,7 +911,8 @@ def choose_layout(request):
 def server(input, output, session):
     removed_rows = reactive.Value(pd.DataFrame())
     outlier_modifications = reactive.Value(pd.DataFrame())
-
+    shiny_userdata = session._scope.get("shiny.userdata", {})
+    session.ui_version = shiny_userdata.get("ui_version", "unknown")
     # @output()
     # @render.text
     # def out():
@@ -1518,9 +1519,8 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.submit_rating)
     def send_rating_to_ga():
-        ui_version = session.scope["shiny.userdata"].get("ui_version", "unknown")
         session.send_custom_message("sendRatingEvent", {
-            "ui_version": ui_version,
+            "ui_version": session.ui_version,
             "rating": input.rating()
         })
     @output
