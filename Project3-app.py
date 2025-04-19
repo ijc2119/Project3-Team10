@@ -556,8 +556,9 @@ def layout_b_ui():
         ),
         ui.h2("Team 10 – 5243 Project 3", class_="mt-3 mb-4 text-center"),
         ui.div(
+            # main part
             ui.div(
-        ui.navset_hidden(
+            ui.navset_hidden(
         ui.nav_panel("User Guide",
             ui.div(
             ui.input_action_button("next_to_upload", "Next Step"),
@@ -862,6 +863,7 @@ def layout_b_ui():
             ),
             class_="col-md-9"
         ),
+        #rating part
             ui.div( 
                 ui.panel_well(
                     ui.h5("Rate this UI design:"),
@@ -869,10 +871,10 @@ def layout_b_ui():
                     ui.input_action_button("submit_rating", "Submit Rating", class_="btn-primary mt-2"),
                     ui.output_text("feedback_message"),
                 ),
-                class_="col-md-3"
+                class_="col-md-3 mt-4"
             ),
             class_="row card p-4 shadow-sm justify-content-center"  
-        ),        
+        ),    
         class_="container" 
     )
 
@@ -1515,9 +1517,10 @@ def server(input, output, session):
     @reactive.event(input.submit_rating)
     def send_rating_to_ga():
         session.send_custom_message("sendRatingEvent", {
-            "ui_version": session.cookies.get("ui_version", "unknown"),
-            "rating": input.rating()
-        })
+        "ui_version": session.user_data.get("ui_version", "unknown"),
+        "rating": input.rating()
+        }) 
+
     @output
     @render.text
     def feedback_message():
@@ -1535,11 +1538,16 @@ def create_app():
         from fastapi import Request
         req = Request(scope, receive=receive)
 
-        assigned = choose_layout(req) 
+        assigned = choose_layout(req)
 
         ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
         shiny_app = App(ui=ui_layout, server=server)
-        return await shiny_app(scope, receive, send)
+
+        async def add_ui_version(scope, receive, send):
+            scope["shiny.userdata"] = {"ui_version": assigned}
+            return await shiny_app(scope, receive, send)
+
+        return await add_ui_version(scope, receive, send)
 
     return app_scope
 
