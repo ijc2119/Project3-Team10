@@ -248,9 +248,10 @@ def layout_a_ui(assigned):
             });
         """)
     ),
-    ui.input_text("ui_version",        
-                    value=assigned,
-                    style={"display": "none"}),
+        ui.tags.div(
+            ui.input_text("ui_version", value=assigned),
+            style="display: none;"
+        ),
     ui.page_sidebar(
     ui.sidebar( #sidebar for uploading data
         # for data selection
@@ -557,9 +558,10 @@ def layout_b_ui(assigned):
                 });
             """)
         ),
-        ui.input_text("ui_version",
-              value=assigned,
-              style={"display": "none"}),
+        ui.tags.div(
+            ui.input_text("ui_version", value=assigned),
+            style="display: none;"
+        ),
         ui.h2("Team 10 – 5243 Project 3", class_="mt-3 mb-4 text-center"),
         ui.div(  # <-- container
             ui.div(  # <-- row
