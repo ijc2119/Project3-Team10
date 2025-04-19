@@ -240,7 +240,8 @@ def layout_a_ui(assigned):
         ui.HTML(google_analytics),
         ui.tags.script("""
             Shiny.addCustomMessageHandler("sendRatingEvent", function(data) {
-                gtag('event', 'submit_feedback', {
+                    console.log('DEBUG sendRatingEvent data:', data);                
+                    gtag('event', 'submit_feedback', {
                     'event_category': 'ui_feedback',
                     'event_label': data.ui_version,
                     'value': data.rating
@@ -550,7 +551,8 @@ def layout_b_ui(assigned):
             ui.HTML(google_analytics),
             ui.tags.script("""
                 Shiny.addCustomMessageHandler("sendRatingEvent", function(data) {
-                    gtag('event', 'submit_feedback', {
+                        console.log('DEBUG sendRatingEvent data:', data); 
+                        gtag('event', 'submit_feedback', {
                         'event_category': 'ui_feedback',
                         'event_label': data.ui_version,
                         'value': data.rating
