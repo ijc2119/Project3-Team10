@@ -1548,14 +1548,19 @@ def server(input, output, session):
 # use a creat fuction to creat a new app evertime user click the link
 def create_app():
     async def app_scope(scope, receive, send):
+        if scope["type"] != "http":
+            shiny_app = App(ui=layout_a_ui("A"), server=server)
+            return await shiny_app(scope, receive, send)
+
         from fastapi import Request
         req = Request(scope, receive=receive)
 
         assigned, set_cookie = choose_layout(req)
+
         scope["shiny.userdata"] = {"ui_version": assigned}
 
-        ui_layout = layout_a_ui(assigned) if assigned=="A" else layout_b_ui(assigned)
-        app = App(ui=ui_layout, server=server)
+        ui_layout = layout_a_ui(assigned) if assigned == "A" else layout_b_ui(assigned)
+        shiny_app = App(ui=ui_layout, server=server)
 
         if set_cookie:
             async def send_with_cookie(message):
@@ -1563,8 +1568,9 @@ def create_app():
                     headers = message.setdefault("headers", [])
                     headers.append([b"set-cookie", f"ui_version={assigned}; Path=/".encode()])
                 await send(message)
-            await app(scope, receive, send_with_cookie)
+            return await shiny_app(scope, receive, send_with_cookie)
         else:
-            await app(scope, receive, send)
+            return await shiny_app(scope, receive, send)
+
     return app_scope
 app = create_app()
