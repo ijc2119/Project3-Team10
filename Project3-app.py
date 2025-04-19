@@ -1518,8 +1518,9 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.submit_rating)
     def send_rating_to_ga():
+        ui_version = session.user.get("ui_version", "unknown")
         session.send_custom_message("sendRatingEvent", {
-            "ui_version": session.request.cookies.get("ui_version", "unknown"),
+            "ui_version": ui_version,
             "rating": input.rating()
         })
 
@@ -1536,21 +1537,13 @@ def create_app():
         if scope["type"] != "http":
             shiny_app = App(ui=layout_a_ui(), server=server)
             return await shiny_app(scope, receive, send)
-
         from fastapi import Request
         req = Request(scope, receive=receive)
-
         assigned = choose_layout(req)
-
         ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
+        scope["shiny.userdata"] = {"ui_version": assigned}
         shiny_app = App(ui=ui_layout, server=server)
-        shiny_app.user_data["ui_version"] = assigned
-
-        async def add_ui_version(scope, receive, send):
-            scope["shiny.userdata"] = {"ui_version": assigned}
-            return await shiny_app(scope, receive, send)
-
-        return await add_ui_version(scope, receive, send)
+        return await shiny_app(scope, receive, send)
 
     return app_scope
 
