@@ -259,7 +259,7 @@ def layout_a_ui(assigned):
         # for data selection
         ui.input_radio_buttons("data_source", "Choose Data Source: ", 
                    choices=["Upload dataset", "Use Default Data"], selected="Use Default Data"),
-        
+
             ui.output_ui("show_upload"),
             ui.input_action_button("save_initial_data", "Import Data"),
 
@@ -876,7 +876,7 @@ def layout_b_ui(assigned):
         ),
         id="hidden_tabs",
             ),
-                    class_="col-md-8 card p-4 shadow-sm"
+                    class_="col-md-9 card p-4 shadow-sm"
                 ),
 
                 ui.div(  # rating panel
@@ -891,7 +891,7 @@ def layout_b_ui(assigned):
                             marginwidth="0"
                         )
                     ),
-                    class_="col-md-4 mt-4"
+                    class_="col-md-3 mt-4"
                 ),
 
                 # ui.div(  # rating panel
