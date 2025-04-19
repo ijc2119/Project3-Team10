@@ -555,10 +555,10 @@ def layout_b_ui():
             """)
         ),
         ui.h2("Team 10 – 5243 Project 3", class_="mt-3 mb-4 text-center"),
-        ui.div(
-            # main part
-            ui.div(
-            ui.navset_hidden(
+        ui.div(  # <-- container
+            ui.div(  # <-- row
+                ui.div(  # main content
+                    ui.navset_hidden(
         ui.nav_panel("User Guide",
             ui.div(
             ui.input_action_button("next_to_upload", "Next Step"),
@@ -861,32 +861,33 @@ def layout_b_ui():
         ),
         id="hidden_tabs",
             ),
-            class_="col-md-9" 
-          ),
-        #rating part
-            ui.div( 
-                ui.panel_well(
-                    ui.h5("Rate this UI design:"),
-                    ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
-                    ui.input_action_button("submit_rating", "Submit Rating", class_="btn-primary mt-2"),
-                    ui.output_text("feedback_message"),
+                    class_="col-md-9 card p-4 shadow-sm"
                 ),
-                class_="col-md-3 mt-4"
+                ui.div(  # rating panel
+                    ui.panel_well(
+                        ui.h5("Rate this UI design:"),
+                        ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
+                        ui.input_action_button("submit_rating", "Submit Rating", class_="btn-primary mt-2"),
+                        ui.output_text("feedback_message"),
+                    ),
+                    class_="col-md-3 mt-4"
+                ),
+                class_="row gx-4" 
             ),
-            class_="row card p-4 shadow-sm justify-content-center"  
-        ),    
-        class_="container" 
+            class_="container"
+        )
     )
 
 
 
 def choose_layout(request):
+    assigned = request.cookies.get("ui_version")
+    set_cookie = False
 
-    assigned = request.cookies.get("ui_version") # read users' cookie to assgin ui for different users
-    #assign ui randomly
     if assigned not in ["A", "B"]:
         assigned = random.choice(["A", "B"])
-        # creat htlm file 
+        set_cookie = True
+
     with open("google-analytics.html", "w") as f:
         f.write(f"""
         <!-- Google tag (gtag.js) -->
@@ -900,8 +901,9 @@ def choose_layout(request):
           }});
         </script>
         """)
+
     print(f"Assigned UI version: {assigned}")
-    return assigned
+    return assigned, set_cookie
     
 
 
@@ -1542,6 +1544,7 @@ def create_app():
 
         ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
         shiny_app = App(ui=ui_layout, server=server)
+        shiny_app.user_data["ui_version"] = assigned
 
         async def add_ui_version(scope, receive, send):
             scope["shiny.userdata"] = {"ui_version": assigned}
