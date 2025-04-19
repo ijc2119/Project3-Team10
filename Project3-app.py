@@ -854,7 +854,7 @@ def choose_layout(request):
         </script>
         """)
     print(f"Assigned UI version: {assigned}")
-    return layout_a_ui() if assigned == "A" else layout_b_ui()
+    return assigned
     
 
 
@@ -1474,9 +1474,12 @@ def create_app():
         if scope["type"] != "http":
             shiny_app = App(ui=layout_a_ui(), server=server)
             return await shiny_app(scope, receive, send)
+
         from fastapi import Request
         req = Request(scope, receive=receive)
-        assigned = choose_layout(req)
+
+        assigned = choose_layout(req) 
+
         ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
         shiny_app = App(ui=ui_layout, server=server)
         return await shiny_app(scope, receive, send)
