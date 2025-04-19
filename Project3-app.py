@@ -861,8 +861,8 @@ def layout_b_ui():
         ),
         id="hidden_tabs",
             ),
-            class_="col-md-9"
-        ),
+            class_="col-md-9" 
+          ),
         #rating part
             ui.div( 
                 ui.panel_well(
@@ -1517,9 +1517,9 @@ def server(input, output, session):
     @reactive.event(input.submit_rating)
     def send_rating_to_ga():
         session.send_custom_message("sendRatingEvent", {
-        "ui_version": session.user_data.get("ui_version", "unknown"),
-        "rating": input.rating()
-        }) 
+            "ui_version": session.request.cookies.get("ui_version", "unknown"),
+            "rating": input.rating()
+        })
 
     @output
     @render.text
