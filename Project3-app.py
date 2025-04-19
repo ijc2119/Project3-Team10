@@ -876,7 +876,7 @@ def layout_b_ui(assigned):
                     class_="col-md-9 card p-4 shadow-sm"
                 ),
 
-                ui.tags.iframe(
+                ui.div(ui.tags.iframe(
                     id="googleform",
                     src="https://docs.google.com/forms/d/e/1FAIpQLScajEYuogMUu7Df_TVJS0CLbUyjVZziZMMouj8wx8JlYB335w/viewform?embedded=true",
                     width="100",
@@ -884,7 +884,7 @@ def layout_b_ui(assigned):
                     frameborder="0",
                     marginheight="0",
                     marginwidth="0"
-                ),
+                )),
 
                 # ui.div(  # rating panel
                 #     ui.panel_well(
