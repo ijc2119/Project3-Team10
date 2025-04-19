@@ -911,7 +911,7 @@ def choose_layout(request):
 def server(input, output, session):
     removed_rows = reactive.Value(pd.DataFrame())
     outlier_modifications = reactive.Value(pd.DataFrame())
-    shiny_userdata = session.scope.get("shiny.userdata", {})
+    shiny_userdata = getattr(session, "_scope", {}).get("shiny.userdata", {})
     session.ui_version = shiny_userdata.get("ui_version", "unknown")
     # @output()
     # @render.text
