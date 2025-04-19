@@ -1541,10 +1541,13 @@ def create_app():
         from fastapi import Request
         req = Request(scope, receive=receive)
 
-        assigned, set_cookie = choose_layout(req)
+        assigned, _ = choose_layout(req)
+
         scope["shiny.userdata"] = {"ui_version": assigned}
 
-        shiny_app = App(ui=layout_a_ui() if assigned == "A" else layout_b_ui(), server=server)
+        ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
+        shiny_app = App(ui=ui_layout, server=server)
+
         return await shiny_app(scope, receive, send)
 
     return app_scope
