@@ -231,7 +231,7 @@ def zero_var(data, t):
 
 
 # UI Layout
-def layout_a_ui():
+def layout_a_ui(assigned):
     with open("google-analytics.html") as f:
         google_analytics = f.read()
     return ui.page_fluid(
@@ -248,6 +248,9 @@ def layout_a_ui():
             });
         """)
     ),
+    ui.input_text("ui_version",        
+                    value=assigned,
+                    style={"display": "none"}),
     ui.page_sidebar(
     ui.sidebar( #sidebar for uploading data
         # for data selection
@@ -536,7 +539,7 @@ def layout_a_ui():
 ))
 
 
-def layout_b_ui():
+def layout_b_ui(assigned):
     with open("google-analytics.html") as f:
         google_analytics = f.read()
 
@@ -554,6 +557,9 @@ def layout_b_ui():
                 });
             """)
         ),
+        ui.input_text("ui_version",
+              value=assigned,
+              style={"display": "none"}),
         ui.h2("Team 10 – 5243 Project 3", class_="mt-3 mb-4 text-center"),
         ui.div(  # <-- container
             ui.div(  # <-- row
@@ -1518,11 +1524,17 @@ def server(input, output, session):
 
     @reactive.effect
     @reactive.event(input.submit_rating)
-    def send_rating_to_ga():
-        session.send_custom_message("sendRatingEvent", {
-            "ui_version": session.ui_version,
-            "rating": input.rating()
-        })
+    async def send_rating_to_ga():
+        ui_version = input.ui_version()   
+        rating    = input.rating()
+        await session.send_custom_message("sendRatingEvent", {
+            "ui_version": ui_version,
+            "rating":     rating
+    })
+
+
+
+
     @output
     @render.text
     def feedback_message():
@@ -1534,21 +1546,23 @@ def server(input, output, session):
 # use a creat fuction to creat a new app evertime user click the link
 def create_app():
     async def app_scope(scope, receive, send):
-        if scope["type"] != "http":
-            shiny_app = App(ui=layout_a_ui(), server=server)
-            return await shiny_app(scope, receive, send)
-
         from fastapi import Request
         req = Request(scope, receive=receive)
 
-        assigned, _ = choose_layout(req)
-
+        assigned, set_cookie = choose_layout(req)
         scope["shiny.userdata"] = {"ui_version": assigned}
 
-        ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
-        shiny_app = App(ui=ui_layout, server=server)
+        ui_layout = layout_a_ui(assigned) if assigned=="A" else layout_b_ui(assigned)
+        app = App(ui=ui_layout, server=server)
 
-        return await shiny_app(scope, receive, send)
-
+        if set_cookie:
+            async def send_with_cookie(message):
+                if message["type"] == "http.response.start":
+                    headers = message.setdefault("headers", [])
+                    headers.append([b"set-cookie", f"ui_version={assigned}; Path=/".encode()])
+                await send(message)
+            await app(scope, receive, send_with_cookie)
+        else:
+            await app(scope, receive, send)
     return app_scope
 app = create_app()
