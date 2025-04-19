@@ -235,16 +235,19 @@ def layout_a_ui():
     with open("google-analytics.html") as f:
         google_analytics = f.read()
     return ui.page_fluid(
-    ui.tags.head(ui.tags.meta(charset="utf-8"),ui.HTML(google_analytics)),
-    ui.tags.script("""
-        Shiny.addCustomMessageHandler("sendRatingEvent", function(data) {
-            gtag('event', 'submit_feedback', {
-                'event_category': 'ui_feedback',
-                'event_label': data.ui_version,
-                'value': data.rating
+    ui.tags.head(
+        ui.tags.meta(charset="utf-8"),
+        ui.HTML(google_analytics),
+        ui.tags.script("""
+            Shiny.addCustomMessageHandler("sendRatingEvent", function(data) {
+                gtag('event', 'submit_feedback', {
+                    'event_category': 'ui_feedback',
+                    'event_label': data.ui_version,
+                    'value': data.rating
+                });
             });
-        });
-    """)
+        """)
+    ),
     ui.page_sidebar(
     ui.sidebar( #sidebar for uploading data
         # for data selection
@@ -259,8 +262,7 @@ def layout_a_ui():
         ui.h5("Rate this UI design:"),
         ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
         ui.action_button("submit_rating", "Submit Rating"),
-        ui.output_text("Thank you for your rating"),
-
+        ui.output_text("feedback_message"),
         title="Load Data",
     ),
     ui.page_fillable( #page for the tabs
@@ -865,7 +867,7 @@ def layout_b_ui():
                     ui.h5("Rate this UI design:"),
                     ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
                     ui.input_action_button("submit_rating", "Submit Rating", class_="btn-primary mt-2"),
-                    ui.output_text("Thank you for your rating"),
+                    ui.output_text("feedback_message"),
                 ),
                 class_="col-md-3"
             ),
@@ -1516,7 +1518,12 @@ def server(input, output, session):
             "ui_version": session.cookies.get("ui_version", "unknown"),
             "rating": input.rating()
         })
-    
+    @output
+    @render.text
+    def feedback_message():
+        if input.submit_rating():
+            return "Thank you for your rating!"
+        return ""
 # Run the Shiny App
 # use a creat fuction to creat a new app evertime user click the link
 def create_app():
