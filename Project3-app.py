@@ -836,8 +836,10 @@ def layout_b_ui():
 
 )
 
-def choose_layout():
-    assigned = random.choice(["A", "B"])
+def choose_layout(request):
+    assigned = request.cookies.get("ui_version") # read users' cookie to assgin ui for different users
+    if assigned not in ["A", "B"]:
+        assigned = random.choice(["A", "B"])
     with open("google-analytics.html", "w") as f:
         f.write(f"""
         <!-- Google tag (gtag.js) -->
@@ -1468,6 +1470,20 @@ def server(input, output, session):
 # Run the Shiny App
 # use a creat fuction to creat a new app evertime user click the link
 def create_app():
-    return App(ui=choose_layout(), server=server)
+    async def app_scope(scope, receive, send):
+        from fastapi import Request
+
+        req = Request(scope, receive=receive)
+        assigned = choose_layout(req)
+
+        ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
+        shiny_app = App(ui=ui_layout, server=server)
+
+        res = await shiny_app(scope, receive, send)
+        return res
+
+    return app_scope
+
+app = create_app()
 
 app = create_app()
