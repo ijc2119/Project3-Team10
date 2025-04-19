@@ -852,6 +852,7 @@ def choose_layout():
         </script>
         """)
     return layout_a_ui() if assigned == "A" else layout_b_ui()
+    print(f"Assigned UI version: {assigned}")
 
 
 # Server Logic
