@@ -259,6 +259,9 @@ def layout_a_ui(assigned):
         # for data selection
         ui.input_radio_buttons("data_source", "Choose Data Source: ", 
                    choices=["Upload dataset", "Use Default Data"], selected="Use Default Data"),
+        
+            ui.output_ui("show_upload"),
+            ui.input_action_button("save_initial_data", "Import Data"),
 
         # This will conditionally show the file upload input
         ui.tags.iframe(
@@ -369,7 +372,7 @@ def layout_a_ui(assigned):
                                        ui.input_selectize("drop_na_columns", "Columns to Drop NA:", choices=[],
                                                           multiple=True)
                                        ),
-                             # ouliers
+                             # outliers
                              ui.column(2,
                                        ui.h4("Outlier Handling"),
                                        ui.input_checkbox("remove_outliers", "Handle Outliers", value=False),
