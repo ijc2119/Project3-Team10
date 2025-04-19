@@ -1518,12 +1518,11 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.submit_rating)
     def send_rating_to_ga():
-        ui_version = session.user.get("ui_version", "unknown")
+        ui_version = session.user_data.get("ui_version", "unknown")
         session.send_custom_message("sendRatingEvent", {
             "ui_version": ui_version,
             "rating": input.rating()
-        })
-
+    })
     @output
     @render.text
     def feedback_message():
