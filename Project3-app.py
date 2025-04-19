@@ -1518,7 +1518,7 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.submit_rating)
     def send_rating_to_ga():
-        ui_version = session.user_data.get("ui_version", "unknown")
+        ui_version = session.get_user_data().get("ui_version", "unknown")
         session.send_custom_message("sendRatingEvent", {
             "ui_version": ui_version,
             "rating": input.rating()
@@ -1529,6 +1529,7 @@ def server(input, output, session):
         if input.submit_rating():
             return "Thank you for your rating!"
         return ""
+    
 # Run the Shiny App
 # use a creat fuction to creat a new app evertime user click the link
 def create_app():
@@ -1536,14 +1537,15 @@ def create_app():
         if scope["type"] != "http":
             shiny_app = App(ui=layout_a_ui(), server=server)
             return await shiny_app(scope, receive, send)
+
         from fastapi import Request
         req = Request(scope, receive=receive)
+
         assigned = choose_layout(req)
-        ui_layout = layout_a_ui() if assigned == "A" else layout_b_ui()
-        scope["shiny.userdata"] = {"ui_version": assigned}
-        shiny_app = App(ui=ui_layout, server=server)
+        scope["shiny.userdata"] = {"ui_version": assigned}  
+
+        shiny_app = App(ui=layout_a_ui() if assigned == "A" else layout_b_ui(), server=server)
         return await shiny_app(scope, receive, send)
 
     return app_scope
-
 app = create_app()
