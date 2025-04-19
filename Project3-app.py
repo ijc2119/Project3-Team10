@@ -261,7 +261,7 @@ def layout_a_ui():
         ui.hr(),
         ui.h5("Rate this UI design:"),
         ui.input_slider("rating", "Rating (1 = Worst, 5 = Best):", min=1, max=5, value=3),
-        ui.action_button("submit_rating", "Submit Rating"),
+        ui.input_action_button("submit_rating", "Submit Rating"),
         ui.output_text("feedback_message"),
         title="Load Data",
     ),
