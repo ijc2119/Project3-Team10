@@ -7,11 +7,11 @@ To test user engagment between the two sites, we implemented Google Analytics to
 ## Project Installation
 1. Clone the Repository
 ```{python} 
-git clone https://github.com/cassidygorsky/5243-Project2.git
+git clone https://github.com/yinhannn/Project3-Team10.git
 ```
 2. Navigate to the project directory:
 ```{python} 
-cd STAT5243-Project2
+cd Project3-Team10
 ```
 3. Install required libraries:
 ```{python}
